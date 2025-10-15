@@ -8,9 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog.tsx";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import { ImageUpload } from "@/components/ImageUpload";
-import { ProductIngredients } from "@/components/admin/ProductIngredients";
-import { QuickIngredientsSelector } from "@/components/admin/QuickIngredientsSelector";
-import { useProductStatusManagement } from "@/hooks/useProductStatusManagement.tsx";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types.ts";
@@ -21,16 +18,7 @@ export const ProductsManager = () => {
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
-  const [showIngredients, setShowIngredients] = useState<string | null>(null);
-  const [selectedIngredients, setSelectedIngredients] = useState<{
-    id: string;
-    name: string;
-    type: string;
-    quantity: number;
-    unit: string;
-  }[]>([]);
   const queryClient = useQueryClient();
-  const { checkAndUpdateProductStatus } = useProductStatusManagement();
 
   const { data: products } = useQuery({
     queryKey: ['admin-products'],
@@ -55,21 +43,6 @@ export const ProductsManager = () => {
       const { data, error } = await supabase.from('products').insert([newProduct]).select();
       if (error) throw error;
       
-      // Nếu có nguyên liệu được chọn, thêm vào product_ingredients
-      if (data && data[0] && selectedIngredients.length > 0) {
-        const productIngredients = selectedIngredients.map(ing => ({
-          product_id: data[0].id,
-          ingredient_id: ing.id,
-          quantity: ing.quantity,
-          unit: ing.unit
-        }));
-        
-        const { error: piError } = await supabase
-          .from('product_ingredients')
-          .insert(productIngredients);
-        
-        if (piError) throw piError;
-      }
       
       return data;
     },
@@ -81,7 +54,6 @@ export const ProductsManager = () => {
       // Reset form and close modal
       setOpen(false);
       setUploadedImageUrl("");
-      setSelectedIngredients([]);
       setEditingProduct(null);
     },
   });
@@ -138,19 +110,12 @@ export const ProductsManager = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-display text-primary font-bold">Quản Lý Sản Phẩm</h2>
           <div className="flex gap-3">
-            {/* <Button 
-              variant="outline" 
-              onClick={() => checkAndUpdateProductStatus()}
-            >
-              Kiểm Tra Trạng Thái
-            </Button> */}
             <Dialog open={open} onOpenChange={(isOpen) => {
           setOpen(isOpen);
           if (!isOpen) {
             // Reset form when closing
             setEditingProduct(null);
             setUploadedImageUrl("");
-            setSelectedIngredients([]);
           }
         }}>
           <DialogTrigger asChild>
@@ -161,7 +126,7 @@ export const ProductsManager = () => {
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-display text-2xl text-primary font-bold">
-                {editingProduct ? 'Sửa Sản Phẩm & Nguyên Liệu' : 'Thêm Sản Phẩm Mới'}
+                {editingProduct ? 'Sửa Sản Phẩm' : 'Thêm Sản Phẩm Mới'}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -208,20 +173,6 @@ export const ProductsManager = () => {
               </Button>
             </form>
             
-            {/* Show ingredients section */}
-            <div className="mt-6 pt-6 border-t">
-              {editingProduct ? (
-                <ProductIngredients 
-                  productId={editingProduct.id} 
-                  productName={editingProduct.name}
-                />
-              ) : (
-                <QuickIngredientsSelector 
-                  onIngredientsChange={setSelectedIngredients}
-                  initialIngredients={selectedIngredients}
-                />
-              )}
-            </div>
               </DialogContent>
             </Dialog>
           </div>
@@ -252,19 +203,11 @@ export const ProductsManager = () => {
                 <TableCell>{product.stock_quantity}</TableCell>
                        <TableCell>
                          <span className={`px-2 py-1 rounded-full text-xs ${product.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                           {product.is_active ? 'Hoạt Động' : 'Hết Nguyên Liệu'}
+                           {product.is_active ? 'Hoạt Động' : 'Ngừng Bán'}
                          </span>
                        </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      onClick={() => setShowIngredients(showIngredients === product.id ? null : product.id)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      Nguyên Liệu
-                    </Button>
                     <Button size="sm" variant="ghost" onClick={() => { setEditingProduct(product); setOpen(true); }}>
                       <Pencil className="w-4 h-4" />
                     </Button>
@@ -279,15 +222,6 @@ export const ProductsManager = () => {
         </Table>
       </div>
 
-      {/* Product Ingredients Section */}
-      {showIngredients && (
-        <div className="mt-6 p-6 bg-card rounded-3xl shadow-cute">
-          <ProductIngredients 
-            productId={showIngredients} 
-            productName={products?.find(p => p.id === showIngredients)?.name || ''}
-          />
-        </div>
-      )}
     </div>
   );
 };

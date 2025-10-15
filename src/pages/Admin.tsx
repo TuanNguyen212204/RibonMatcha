@@ -5,10 +5,9 @@ import { AdminGuard } from "@/components/AdminGuard";
 import { DashboardStats } from "@/components/admin/DashboardStats";
 import { ProductsManager } from "@/components/admin/ProductsManager";
 import { OrdersManager } from "@/components/admin/OrdersManager";
-import { IngredientsManager } from "@/components/admin/IngredientsManager";
 import { UsersManager } from "@/components/admin/UsersManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
-import { LayoutDashboard, Package, ShoppingCart, Leaf, Users } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users } from "lucide-react";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -32,9 +31,6 @@ const Admin = () => {
                 <TabsTrigger value="orders" className="gap-2 data-[state=active]:bg-kawaii-purple data-[state=active]:text-white rounded-2xl">
                   <ShoppingCart className="w-4 h-4" /> Đơn Hàng
                 </TabsTrigger>
-                <TabsTrigger value="ingredients" className="gap-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded-2xl">
-                  <Leaf className="w-4 h-4" /> Nguyên Liệu
-                </TabsTrigger>
                 <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-kawaii-yellow data-[state=active]:text-white rounded-2xl">
                   <Users className="w-4 h-4" /> Người Dùng
                 </TabsTrigger>
@@ -52,9 +48,6 @@ const Admin = () => {
                 <OrdersManager />
               </TabsContent>
 
-              <TabsContent value="ingredients">
-                <IngredientsManager />
-              </TabsContent>
 
               <TabsContent value="users">
                 <UsersManager />

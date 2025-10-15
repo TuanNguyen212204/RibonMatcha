@@ -7,7 +7,6 @@ import { Minus, Plus, Trash2, ShoppingBag, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useInventoryManagement } from "@/hooks/useInventoryManagement";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +46,6 @@ const Cart = () => {
   });
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { deductIngredients, isDeducting } = useInventoryManagement();
 
   // Validation function for Vietnamese phone numbers
   const isValidVietnamesePhone = (phone: string): boolean => {
@@ -106,17 +104,7 @@ const Cart = () => {
   );
 
   const handleCheckout = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to place an order",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
+    // Guest checkout - không cần đăng nhập
 
     if (!checkoutData.address || !checkoutData.phone || !checkoutData.paymentMethod) {
       toast({
@@ -139,15 +127,15 @@ const Cart = () => {
     setLoading(true);
 
     try {
-      // Create order
+      // Create order (guest checkout)
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert([{
-          user_id: session.user.id,
+          user_id: null, // Guest order
           total_price: subtotal,
           address: checkoutData.address,
           phone: checkoutData.phone,
-          payment_method: checkoutData.paymentMethod as "Cash" | "Card" | "Bank Transfer",
+          payment_method: checkoutData.paymentMethod as "Cash" | "Bank Transfer",
           notes: checkoutData.notes,
           status: "Pending" as const,
         }])
@@ -171,37 +159,7 @@ const Cart = () => {
 
       if (itemsError) throw itemsError;
 
-      // Automatically deduct ingredients from inventory using Edge Function
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deduct-ingredients`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session?.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ order_id: order.id }),
-        });
-
-        const result = await response.json();
-        
-        if (!result.success) {
-          throw new Error(result.error);
-        }
-
-        toast({
-          title: "Nguyên liệu đã được trừ tự động! 📦",
-          description: "Kho nguyên liệu đã được cập nhật theo đơn hàng.",
-        });
-      } catch (inventoryError: unknown) {
-        // Still show success for order, but warn about inventory
-        toast({
-          title: "Đơn hàng thành công nhưng có cảnh báo kho! ⚠️",
-          description: `Đơn hàng đã được đặt nhưng không thể trừ nguyên liệu: ${inventoryError instanceof Error ? inventoryError.message : 'Lỗi không xác định'}`,
-          variant: "destructive",
-        });
-      }
+      // Không cần trừ nguyên liệu nữa vì đã xóa quản lý nguyên liệu
 
       // Clear cart
       localStorage.removeItem("cart");
@@ -212,11 +170,11 @@ const Cart = () => {
       window.dispatchEvent(new CustomEvent('cartUpdated'));
 
       toast({
-        title: "Order placed! 🎉",
-        description: "Your order has been placed successfully!",
+        title: "Đặt hàng thành công! 🎉",
+        description: "Đơn hàng của bạn đã được đặt thành công!",
       });
 
-      navigate("/profile");
+      navigate("/"); // Quay về trang chủ thay vì profile
     } catch (error: unknown) {
       toast({
         title: "Order failed",
@@ -423,9 +381,9 @@ const Cart = () => {
                     className="mx-auto mb-3 rounded-lg shadow-md max-w-48 h-48 object-cover"
                   />
                   <div className="text-sm text-blue-600 space-y-1">
-                    <p><strong>Ngân hàng:</strong> BIDV (BIDV)</p>
-                    <p><strong>STK:</strong> 8813722558</p>
-                    <p><strong>Chủ TK:</strong> Ribon Matchalatte Shop</p>
+                    <p><strong>Ngân hàng:</strong> Vietcombank (VCB)</p>
+                    <p><strong>STK:</strong> 1024811232</p>
+                    <p><strong>Chủ TK:</strong> DINH HUYEN TRANG</p>
                     <p><strong>Nội dung:</strong> {checkoutData.phone}</p>
                   </div>
                   <div className="mt-3 p-2 bg-yellow-50 rounded border border-yellow-200">
@@ -454,8 +412,8 @@ const Cart = () => {
             <Button variant="outline" onClick={() => setShowCheckout(false)}>
               Cancel
             </Button>
-            <Button variant="kawaii" onClick={handleCheckout} disabled={loading || isDeducting}>
-              {loading || isDeducting ? "Processing Order..." : `Place Order (${subtotal.toLocaleString('vi-VN')} VNĐ)`}
+            <Button variant="kawaii" onClick={handleCheckout} disabled={loading}>
+              {loading ? "Đang xử lý..." : `Đặt hàng (${subtotal.toLocaleString('vi-VN')} VNĐ)`}
             </Button>
           </DialogFooter>
         </DialogContent>
