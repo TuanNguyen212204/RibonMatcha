@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import { cn } from "@/lib/utils.ts";
+import logoImage from "../assets/logo.jpg";
 
 const CartBadge = () => {
   const [cartCount, setCartCount] = useState(0);
@@ -100,8 +101,8 @@ export const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
             <img 
-              src={new URL('../assets/logo.jpg', import.meta.url).href} 
-              alt="Kawaii Matcha Logo" 
+              src={logoImage} 
+              alt="Ribon Matchalatte Logo" 
               className="h-8 w-8 rounded-full object-cover group-hover:scale-110 transition-transform"
             />
             <span className="text-2xl font-display text-primary font-bold">
