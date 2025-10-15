@@ -82,7 +82,7 @@ const Index = () => {
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
               <div className="relative z-10 w-full max-w-md mx-auto drop-shadow-2xl animate-float flex items-center justify-center h-96 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-3xl">
                 <img 
-                  src="/src/assets/logo.jpg" 
+                  src="/logo.jpg" 
                   alt="Ribon Matchalatte Logo" 
                   className="h-48 w-48 object-cover rounded-full shadow-2xl animate-bounce-soft border-4 border-white/50"
                 />

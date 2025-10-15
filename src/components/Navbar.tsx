@@ -100,7 +100,7 @@ export const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
             <img 
-              src="/src/assets/logo.jpg" 
+              src="/logo.jpg" 
               alt="Kawaii Matcha Logo" 
               className="h-8 w-8 rounded-full object-cover group-hover:scale-110 transition-transform"
             />

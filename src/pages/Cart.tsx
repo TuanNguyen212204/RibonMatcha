@@ -418,7 +418,7 @@ const Cart = () => {
                 <h4 className="font-semibold text-blue-800 mb-3">📱 Quét QR Code để thanh toán</h4>
                 <div className="text-center">
                   <img 
-                    src="/src/assets/QRbank.jpg" 
+                    src="/QRBank.jpg" 
                     alt="QR Code Ngân Hàng" 
                     className="mx-auto mb-3 rounded-lg shadow-md max-w-48 h-48 object-cover"
                   />
