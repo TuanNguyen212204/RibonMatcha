@@ -73,7 +73,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Điện thoại</p>
-                    <p className="text-muted-foreground">0123 456 789</p>
+                    <p className="text-muted-foreground">0866626905</p>
                   </div>
                 </div>
                 
@@ -83,19 +83,10 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Email</p>
-                    <p className="text-muted-foreground">ribonmatcha@gmail.com</p>
+                    <p className="text-muted-foreground">trangdinhhuyen269@gmail.com</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-matcha-medium rounded-full flex items-center justify-center">
-                    <span className="text-white text-lg">📍</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold">Địa chỉ</p>
-                    <p className="text-muted-foreground">123 Kawaii Street, Cute Town, Vietnam</p>
-                  </div>
-                </div>
+              
                 
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-kawaii-yellow rounded-full flex items-center justify-center">
