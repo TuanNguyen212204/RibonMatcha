@@ -100,7 +100,7 @@ export const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
             <img 
-              src="/logo.jpg" 
+              src={new URL('../assets/logo.jpg', import.meta.url).href} 
               alt="Kawaii Matcha Logo" 
               className="h-8 w-8 rounded-full object-cover group-hover:scale-110 transition-transform"
             />
