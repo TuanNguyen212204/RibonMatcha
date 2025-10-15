@@ -423,8 +423,8 @@ const Cart = () => {
                     className="mx-auto mb-3 rounded-lg shadow-md max-w-48 h-48 object-cover"
                   />
                   <div className="text-sm text-blue-600 space-y-1">
-                    <p><strong>Ngân hàng:</strong> Vietcombank (VCB)</p>
-                    <p><strong>STK:</strong> 1024811232</p>
+                    <p><strong>Ngân hàng:</strong> BIDV (BIDV)</p>
+                    <p><strong>STK:</strong> 8813722558</p>
                     <p><strong>Chủ TK:</strong> Ribon Matchalatte Shop</p>
                     <p><strong>Nội dung:</strong> {checkoutData.phone}</p>
                   </div>

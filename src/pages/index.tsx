@@ -59,7 +59,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-center md:text-left">
               <h1 className="text-5xl md:text-7xl font-display text-white drop-shadow-lg">
-                Welcome to Kawaii Matcha! 🍵💕
+                Welcome to Ribon Matcha! 🍵💕
               </h1>
               <p className="text-xl md:text-2xl text-white/90">
                 Every sip is filled with love and happiness!
