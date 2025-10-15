@@ -1,0 +1,14 @@
+# Ignore these files/folders when deploying to Vercel
+node_modules/
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.vscode/
+.idea/
+
+# But DO NOT ignore public folder - it contains static assets
+!public/
