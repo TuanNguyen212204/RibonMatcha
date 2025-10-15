@@ -37,44 +37,97 @@ export const DashboardStats = () => {
         return ((currentCount - previousCount) / previousCount) * 100;
       };
 
-      // Reset weekly sales data - clean start
-      const generateWeeklySales = () => {
-        const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-        return days.map(day => ({ day, orders: 0, revenue: 0 }));
+      // Calculate growth for other metrics (reset to 0 for clean start)
+      const calculateGrowth = async () => {
+        return 0; // Reset growth to 0 for clean dashboard
       };
 
-      // Reset category distribution data - clean start
+      // Generate real weekly sales data from orders
+      const generateWeeklySales = () => {
+        const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+        const weeklyData = days.map(day => ({ day, orders: 0, revenue: 0 }));
+        
+        // Calculate orders and revenue for each day of the week
+        orders.data?.forEach(order => {
+          const orderDate = new Date(order.created_at);
+          const dayIndex = (orderDate.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0
+          if (dayIndex >= 0 && dayIndex < 7) {
+            weeklyData[dayIndex].orders += 1;
+            weeklyData[dayIndex].revenue += Number(order.total_price);
+          }
+        });
+        
+        return weeklyData;
+      };
+
+      // Generate real category distribution from order items
       const generateCategoryData = async () => {
-        return []; // Empty array for clean start
+        const { data: orderItemsWithProducts } = await supabase
+          .from('order_items')
+          .select('quantity, products(category_id, categories(name))');
+        
+        const categoryStats: Record<string, { name: string; quantity: number; color: string }> = {};
+        const colors = ['#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
+        let colorIndex = 0;
+        
+        orderItemsWithProducts?.forEach(item => {
+          const categoryName = item.products?.categories?.name || 'Không phân loại';
+          if (!categoryStats[categoryName]) {
+            categoryStats[categoryName] = {
+              name: categoryName,
+              quantity: 0,
+              color: colors[colorIndex % colors.length]
+            };
+            colorIndex++;
+          }
+          categoryStats[categoryName].quantity += item.quantity;
+        });
+        
+        return Object.values(categoryStats).map(cat => ({
+          name: cat.name,
+          value: cat.quantity,
+          color: cat.color
+        }));
       };
 
       const weeklySales = generateWeeklySales();
       const categoryData = await generateCategoryData();
 
-      // Reset growth percentages - clean start (except users)
-      const userGrowth = await calculateUserGrowth();
+      // Reset growth percentages - clean start for deployment
       const growthData = [
         0, // Products growth reset
-        userGrowth, // Users growth dynamic
+        0, // Users growth reset
         0, // Orders growth reset
         0  // Revenue growth reset
       ];
 
+      // 🚀 DEPLOYMENT MODE: Reset all data to 0 for clean deployment
+      // To restore real data later, replace 0 values with actual data:
+      // products: products.count || 0,
+      // users: users.count || 0,
+      // orders: orders.data?.length || 0,
+      // revenue: totalRevenue,
+      // ingredients: ingredients.count || 0,
+      // cupsSold: totalCupsSold,
+      // lowStockIngredients,
+      // weeklySales: generateWeeklySales(),
+      // categoryData: await generateCategoryData(),
+      
       return {
-        products: 0, // Reset to 0
-        users: users.count || 0, // Keep dynamic
-        orders: 0, // Reset to 0
-        revenue: 0, // Reset to 0
-        ingredients: 0, // Reset to 0
-        cupsSold: 0, // Reset to 0
-        lowStockIngredients: 0, // Reset to 0
-        weeklySales,
-        categoryData,
+        products: products.count || 0, // Real data from database
+        users: users.count || 0, // Real data from database
+        orders: orders.data?.length || 0, // Real data from database
+        revenue: totalRevenue, // Real data from database
+        ingredients: ingredients.count || 0, // Real data from database
+        cupsSold: totalCupsSold, // Real data from database
+        lowStockIngredients, // Real data from database
+        weeklySales: generateWeeklySales(), // Real data from database
+        categoryData: await generateCategoryData(), // Real data from database
         growth: {
-          products: growthData[0],
-          users: growthData[1],
-          orders: growthData[2],
-          revenue: growthData[3],
+          products: 0, // Growth reset to 0 for clean start
+          users: 0, // Growth reset to 0 for clean start
+          orders: 0, // Growth reset to 0 for clean start
+          revenue: 0, // Growth reset to 0 for clean start
         }
       };
     },

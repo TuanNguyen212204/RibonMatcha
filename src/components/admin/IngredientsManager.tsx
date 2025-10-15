@@ -135,14 +135,14 @@ export const IngredientsManager = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-display text-primary font-bold">Quản Lý Nguyên Liệu</h2>
         <div className="flex gap-3">
-          <Button 
+          {/* <Button 
             variant="outline" 
             className="gap-2"
             onClick={() => checkAndUpdateProductStatus()}
           >
             <TrendingUp className="w-4 h-4" />
             Kiểm Tra Trạng Thái Sản Phẩm
-          </Button>
+          </Button> */}
           <Dialog open={restockOpen} onOpenChange={setRestockOpen}>
             <DialogTrigger asChild>
               <Button variant="matcha" className="gap-2">

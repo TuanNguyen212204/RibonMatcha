@@ -138,12 +138,12 @@ export const ProductsManager = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-display text-primary font-bold">Quản Lý Sản Phẩm</h2>
           <div className="flex gap-3">
-            <Button 
+            {/* <Button 
               variant="outline" 
               onClick={() => checkAndUpdateProductStatus()}
             >
               Kiểm Tra Trạng Thái
-            </Button>
+            </Button> */}
             <Dialog open={open} onOpenChange={(isOpen) => {
           setOpen(isOpen);
           if (!isOpen) {

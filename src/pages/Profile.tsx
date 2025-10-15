@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
-import { User, ShoppingBag } from "lucide-react";
+import { User, ShoppingBag, MapPin, Phone, Calendar, Package, Truck, CheckCircle, Clock, XCircle } from "lucide-react";
 import { useOrderNotifications } from "@/hooks/useOrderNotifications";
 import { toast } from "sonner";
 
@@ -90,6 +90,24 @@ const Profile = () => {
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'Completed':
+      case 'Delivered':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'Pending':
+        return <Clock className="w-4 h-4" />;
+      case 'Preparing':
+        return <Package className="w-4 h-4" />;
+      case 'Shipping':
+        return <Truck className="w-4 h-4" />;
+      case 'Failed':
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-lg">Loading...</p></div>;
 
   return (
@@ -119,22 +137,68 @@ const Profile = () => {
                           <p className="text-sm text-muted-foreground">Order #{order.id.slice(0, 8)}</p>
                           <p className="text-lg font-semibold">{order.total_price.toLocaleString('vi-VN')} VNĐ</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
                           {order.status}
                         </span>
                       </div>
-                      <div className="space-y-2">
+                      
+                      {/* Order Items */}
+                      <div className="space-y-3 mb-4">
+                        <h4 className="font-medium text-gray-700">Sản phẩm đã đặt:</h4>
                         {order.order_items?.map((item: any) => (
-                          <div key={item.id} className="flex gap-3">
-                            <img src={item.products.image_url || '/placeholder.svg'} alt={item.products.name} className="w-12 h-12 rounded-xl object-cover" />
-                            <div>
-                              <p className="font-medium">{item.products.name}</p>
-                              <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                          <div key={item.id} className="p-3 bg-gray-50 rounded-xl">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium">{item.products?.name || 'Sản phẩm không xác định'}</p>
+                                <p className="text-sm text-muted-foreground">Số lượng: {item.quantity}</p>
+                              </div>
+                              {item.products?.price && (
+                                <p className="text-sm font-medium text-green-600">
+                                  {(item.products.price * item.quantity).toLocaleString('vi-VN')} VNĐ
+                                </p>
+                              )}
                             </div>
                           </div>
                         ))}
                       </div>
-                      <p className="text-sm text-muted-foreground mt-4">{new Date(order.created_at).toLocaleDateString()}</p>
+
+                      {/* Order Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Calendar className="w-4 h-4 text-gray-500" />
+                          <span className="text-muted-foreground">Ngày đặt:</span>
+                          <span className="font-medium">{new Date(order.created_at).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock className="w-4 h-4 text-gray-500" />
+                          <span className="text-muted-foreground">Giờ đặt:</span>
+                          <span className="font-medium">{new Date(order.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      </div>
+
+                      {/* Delivery Info */}
+                      {order.delivery_address && (
+                        <div className="border-t pt-4">
+                          <h4 className="font-medium text-gray-700 mb-2">Thông tin giao hàng:</h4>
+                          <div className="space-y-2 text-sm">
+                            {order.delivery_address && (
+                              <div className="flex items-start gap-2">
+                                <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
+                                <span className="text-muted-foreground">Địa chỉ:</span>
+                                <span className="font-medium">{order.delivery_address}</span>
+                              </div>
+                            )}
+                            {order.delivery_phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-4 h-4 text-gray-500" />
+                                <span className="text-muted-foreground">SĐT:</span>
+                                <span className="font-medium">{order.delivery_phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </Card>
                   ))
                 ) : (
