@@ -6,8 +6,9 @@ import { DashboardStats } from "@/components/admin/DashboardStats";
 import { ProductsManager } from "@/components/admin/ProductsManager";
 import { OrdersManager } from "@/components/admin/OrdersManager";
 import { UsersManager } from "@/components/admin/UsersManager";
+import { ContactsManager } from "@/components/admin/ContactsManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
-import { LayoutDashboard, Package, ShoppingCart, Users } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, Mail } from "lucide-react";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -31,6 +32,9 @@ const Admin = () => {
                 <TabsTrigger value="orders" className="gap-2 data-[state=active]:bg-kawaii-purple data-[state=active]:text-white rounded-2xl">
                   <ShoppingCart className="w-4 h-4" /> Đơn Hàng
                 </TabsTrigger>
+                <TabsTrigger value="contacts" className="gap-2 data-[state=active]:bg-kawaii-purple data-[state=active]:text-white rounded-2xl">
+                  <Mail className="w-4 h-4" /> Liên Hệ
+                </TabsTrigger>
                 <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-kawaii-yellow data-[state=active]:text-white rounded-2xl">
                   <Users className="w-4 h-4" /> Người Dùng
                 </TabsTrigger>
@@ -48,6 +52,9 @@ const Admin = () => {
                 <OrdersManager />
               </TabsContent>
 
+              <TabsContent value="contacts">
+                <ContactsManager />
+              </TabsContent>
 
               <TabsContent value="users">
                 <UsersManager />

@@ -266,7 +266,7 @@ const Cart = () => {
                     </div>
 
                     <div className="text-right">
-                      <p className="text-xl font-bold text-primary">
+                      <p className="text-lg font-bold text-primary">
                         {(item.price * item.quantity).toLocaleString('vi-VN')} VNĐ
                       </p>
                     </div>
@@ -288,7 +288,7 @@ const Cart = () => {
                       <span className="text-muted-foreground">Delivery</span>
                       <span className="font-semibold">Free 🎁</span>
                     </div>
-                    <div className="border-t pt-3 flex justify-between text-lg">
+                    <div className="border-t pt-3 flex justify-between text-base">
                       <span className="font-semibold">Total</span>
                       <span className="font-bold text-primary">
                         {subtotal.toLocaleString('vi-VN')} VNĐ
@@ -381,8 +381,8 @@ const Cart = () => {
                     className="mx-auto mb-3 rounded-lg shadow-md max-w-48 h-48 object-cover"
                   />
                   <div className="text-sm text-blue-600 space-y-1">
-                    <p><strong>Ngân hàng:</strong> Vietcombank (VCB)</p>
-                    <p><strong>STK:</strong> 1024811232</p>
+                    <p><strong>Ngân hàng:</strong> BIDV (VCB)</p>
+                    <p><strong>STK:</strong> 8813722558</p>
                     <p><strong>Chủ TK:</strong> DINH HUYEN TRANG</p>
                     <p><strong>Nội dung:</strong> {checkoutData.phone}</p>
                   </div>

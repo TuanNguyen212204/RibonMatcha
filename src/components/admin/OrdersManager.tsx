@@ -241,7 +241,7 @@ export const OrdersManager = () => {
                     <Package className="w-5 h-5 text-green-600" />
                     <span className="font-medium text-green-800">Tổng Tiền</span>
                   </div>
-                  <p className="font-bold text-lg">{selectedOrder.total_price.toLocaleString('vi-VN')} VNĐ</p>
+                  <p className="font-bold text-base">{selectedOrder.total_price.toLocaleString('vi-VN')} VNĐ</p>
                   <p className="text-sm text-green-600">{selectedOrder.payment_method}</p>
                 </div>
                 

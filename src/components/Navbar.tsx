@@ -90,7 +90,31 @@ export const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      // Thử logout với scope local trước (ít gây lỗi hơn)
+      await supabase.auth.signOut({ scope: 'local' });
+      
+      // Clear local state
+      setSession(null);
+      setIsAdmin(false);
+      
+      // Clear cart from localStorage
+      localStorage.removeItem('cart');
+      
+      // Navigate to home page
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.log("Logout failed, clearing local state anyway:", error);
+      
+      // Ngay cả khi logout thất bại, vẫn clear local state
+      setSession(null);
+      setIsAdmin(false);
+      localStorage.removeItem('cart');
+      
+      // Force reload để đảm bảo clean state
+      window.location.href = '/';
+    }
   };
 
   const isActive = (path: string) => location.pathname === path;

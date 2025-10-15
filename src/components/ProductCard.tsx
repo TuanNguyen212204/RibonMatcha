@@ -106,7 +106,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         {/* Price & Add to Cart */}
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <div>
-            <p className="text-2xl font-bold text-primary">
+            <p className="text-lg font-bold text-primary">
               {product.price.toLocaleString('vi-VN')} VNĐ
             </p>
           </div>
