@@ -143,6 +143,7 @@ export type Database = {
         Row: {
           address: string
           created_at: string
+          customer_identifier: string | null
           id: string
           notes: string | null
           payment_method: Database["public"]["Enums"]["payment_method"]
@@ -155,6 +156,7 @@ export type Database = {
         Insert: {
           address: string
           created_at?: string
+          customer_identifier?: string | null
           id?: string
           notes?: string | null
           payment_method: Database["public"]["Enums"]["payment_method"]
@@ -167,6 +169,7 @@ export type Database = {
         Update: {
           address?: string
           created_at?: string
+          customer_identifier?: string | null
           id?: string
           notes?: string | null
           payment_method?: Database["public"]["Enums"]["payment_method"]

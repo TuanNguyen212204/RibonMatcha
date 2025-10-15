@@ -73,7 +73,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Điện thoại</p>
-                    <p className="text-muted-foreground">0866626905</p>
+                    <p className="text-muted-foreground">Liên hệ qua form bên cạnh</p>
                   </div>
                 </div>
                 
@@ -83,10 +83,29 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Email</p>
-                    <p className="text-muted-foreground">trangdinhhuyen269@gmail.com</p>
+                    <p className="text-muted-foreground">Chúng tôi sẽ trả lời qua email bạn cung cấp</p>
                   </div>
                 </div>
-              
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-matcha-medium rounded-full flex items-center justify-center">
+                    <span className="text-white text-lg">📍</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Địa chỉ</p>
+                    <p className="text-muted-foreground">Giao hàng toàn thành phố</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-lg">🚚</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Theo dõi đơn hàng</p>
+                    <p className="text-muted-foreground">Kiểm tra trạng thái đơn hàng của bạn</p>
+                  </div>
+                </div>
                 
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-kawaii-yellow rounded-full flex items-center justify-center">
@@ -94,7 +113,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Giờ mở cửa</p>
-                    <p className="text-muted-foreground">8:00 AM - 10:00 PM (Hàng ngày)</p>
+                    <p className="text-muted-foreground">Đặt hàng 24/7</p>
                   </div>
                 </div>
               </div>
@@ -118,6 +137,21 @@ const Contact = () => {
               <Button type="submit" variant="kawaii" size="lg" className="w-full" disabled={loading}>
                 {loading ? "Đang gửi..." : "Gửi Tin Nhắn"}
               </Button>
+              
+              <div className="border-t pt-6">
+                <p className="text-sm text-muted-foreground mb-4 text-center">
+                  Đã đặt hàng? Theo dõi trạng thái đơn hàng của bạn
+                </p>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/track-order'}
+                >
+                  🚚 Theo Dõi Đơn Hàng
+                </Button>
+              </div>
             </form>
             </div>
           </div>

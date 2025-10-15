@@ -5,15 +5,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog.tsx";
 import { toast } from "sonner";
-import { Eye, MapPin, Phone, Calendar, Clock, Package, User, Truck, CheckCircle, XCircle } from "lucide-react";
+import { Eye, MapPin, Phone, Calendar, Clock, Package, User, Truck, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
-import type { Database } from "@/integrations/supabase/types.ts";
+import type { Database, Tables } from "@/integrations/supabase/types.ts";
 
 type OrderStatus = Database['public']['Enums']['order_status'];
+type Order = Tables<'orders'> & {
+  order_items: Array<{
+    id: string;
+    quantity: number;
+    products: {
+      id: string;
+      name: string;
+      price: number;
+      image_url: string;
+    };
+  }>;
+};
 
 export const OrdersManager = () => {
   const queryClient = useQueryClient();
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
 
   const { data: orders } = useQuery({
@@ -37,19 +50,7 @@ export const OrdersManager = () => {
         .order('created_at', { ascending: false });
       if (error) throw error;
       
-      // Fetch user info separately
-      const ordersWithProfiles = await Promise.all(
-        (data || []).map(async (order) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('username, email')
-            .eq('id', order.user_id)
-            .single();
-          return { ...order, profile };
-        })
-      );
-      
-      return ordersWithProfiles;
+      return data;
     },
   });
 
@@ -125,6 +126,77 @@ export const OrdersManager = () => {
     },
   });
 
+  const deleteOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      // Xóa order_items trước (do foreign key constraint)
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      // Sau đó xóa order
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      toast.success("Order deleted! 🗑️");
+    },
+  });
+
+  const deleteMultipleOrdersMutation = useMutation({
+    mutationFn: async (orderIds: string[]) => {
+      // Xóa order_items trước
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .in('order_id', orderIds);
+
+      if (itemsError) throw itemsError;
+
+      // Sau đó xóa orders
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .in('id', orderIds);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      setSelectedOrders([]);
+      toast.success(`${selectedOrders.length} orders deleted! 🗑️`);
+    },
+  });
+
+  const handleSelectOrder = (orderId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(prev => [...prev, orderId]);
+    } else {
+      setSelectedOrders(prev => prev.filter(id => id !== orderId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(orders?.map(order => order.id) || []);
+    } else {
+      setSelectedOrders([]);
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedOrders.length === 0) return;
+    deleteMultipleOrdersMutation.mutate(selectedOrders);
+  };
+
+
   const getStatusColor = (status: OrderStatus) => {
     const colors = {
       Pending: 'bg-yellow-100 text-yellow-700',
@@ -137,19 +209,43 @@ export const OrdersManager = () => {
     return colors[status];
   };
 
-  const handleViewOrderDetails = (order: any) => {
+  const handleViewOrderDetails = (order: Order) => {
     setSelectedOrder(order);
     setOrderDetailsOpen(true);
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-display text-primary font-bold">Quản Lý Đơn Hàng</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-display text-primary font-bold">Quản Lý Đơn Hàng</h2>
+        
+        <div className="flex gap-3">
+          {selectedOrders.length > 0 && (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSelected}
+              disabled={deleteMultipleOrdersMutation.isPending}
+              className="gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Xóa {selectedOrders.length} đơn đã chọn
+            </Button>
+          )}
+        </div>
+      </div>
 
       <div className="bg-card rounded-3xl shadow-cute overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <input
+                  type="checkbox"
+                  checked={selectedOrders.length === orders?.length && orders.length > 0}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+              </TableHead>
               <TableHead>Mã Đơn Hàng</TableHead>
               <TableHead>Khách Hàng</TableHead>
               <TableHead>Tổng Tiền</TableHead>
@@ -163,11 +259,19 @@ export const OrdersManager = () => {
           <TableBody>
             {orders?.map((order) => (
               <TableRow key={order.id}>
+                <TableCell className="w-12">
+                  <input
+                    type="checkbox"
+                    checked={selectedOrders.includes(order.id)}
+                    onChange={(e) => handleSelectOrder(order.id, e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                </TableCell>
                 <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
                 <TableCell>
                   <div>
-                    <div className="font-medium">{order.profile?.username || 'Unknown'}</div>
-                    <div className="text-xs text-muted-foreground">{order.profile?.email}</div>
+                    <div className="font-medium">{order.customer_identifier || 'Guest'}</div>
+                    <div className="text-xs text-muted-foreground">{order.phone}</div>
                   </div>
                 </TableCell>
                 <TableCell className="font-semibold">{order.total_price.toLocaleString('vi-VN')} VNĐ</TableCell>
@@ -190,22 +294,35 @@ export const OrdersManager = () => {
                   </Button>
                 </TableCell>
                 <TableCell>
-                  <Select
-                    value={order.status}
-                    onValueChange={(value) => updateStatusMutation.mutate({ orderId: order.id, status: value as OrderStatus })}
-                  >
-                    <SelectTrigger className="w-[130px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Preparing">Preparing</SelectItem>
-                      <SelectItem value="Shipping">Shipping</SelectItem>
-                      <SelectItem value="Delivered">Delivered</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                      <SelectItem value="Failed">Failed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) => updateStatusMutation.mutate({ orderId: order.id, status: value as OrderStatus })}
+                    >
+                      <SelectTrigger className="w-[130px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Preparing">Preparing</SelectItem>
+                        <SelectItem value="Shipping">Shipping</SelectItem>
+                        <SelectItem value="Delivered">Delivered</SelectItem>
+                        <SelectItem value="Completed">Completed</SelectItem>
+                        <SelectItem value="Failed">Failed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteOrderMutation.mutate(order.id)}
+                      disabled={deleteOrderMutation.isPending}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      title="Xóa đơn hàng"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -232,8 +349,8 @@ export const OrdersManager = () => {
                     <User className="w-5 h-5 text-blue-600" />
                     <span className="font-medium text-blue-800">Khách Hàng</span>
                   </div>
-                  <p className="font-semibold">{selectedOrder.profile?.username || 'Unknown'}</p>
-                  <p className="text-sm text-blue-600">{selectedOrder.profile?.email}</p>
+                  <p className="font-semibold">{selectedOrder.customer_identifier || 'Guest'}</p>
+                  <p className="text-sm text-blue-600">{selectedOrder.phone}</p>
                 </div>
                 
                 <div className="p-4 bg-green-50 rounded-xl">
@@ -263,7 +380,8 @@ export const OrdersManager = () => {
                   Sản Phẩm Đã Đặt
                 </h3>
                 <div className="space-y-3">
-                  {selectedOrder.order_items?.map((item: any) => (
+                  {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
+                    selectedOrder.order_items.map((item) => (
                     <div key={item.id} className="flex gap-4 p-4 bg-gray-50 rounded-xl">
                       <img 
                         src={item.products?.image_url || '/placeholder.svg'} 
@@ -290,7 +408,12 @@ export const OrdersManager = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Không có sản phẩm nào trong đơn hàng này
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -333,35 +456,29 @@ export const OrdersManager = () => {
               </div>
 
               {/* Delivery Information */}
-              {(selectedOrder.delivery_address || selectedOrder.delivery_phone) && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    Thông Tin Giao Hàng
-                  </h3>
-                  <div className="space-y-3">
-                    {selectedOrder.delivery_address && (
-                      <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-xl">
-                        <MapPin className="w-5 h-5 text-orange-600 mt-0.5" />
-                        <div>
-                          <span className="font-medium text-orange-800">Địa chỉ giao hàng:</span>
-                          <p className="text-orange-700 mt-1">{selectedOrder.delivery_address}</p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {selectedOrder.delivery_phone && (
-                      <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
-                        <Phone className="w-5 h-5 text-blue-600" />
-                        <div>
-                          <span className="font-medium text-blue-800">Số điện thoại:</span>
-                          <p className="text-blue-700 mt-1">{selectedOrder.delivery_phone}</p>
-                        </div>
-                      </div>
-                    )}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Truck className="w-5 h-5" />
+                  Thông Tin Giao Hàng
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-xl">
+                    <MapPin className="w-5 h-5 text-orange-600 mt-0.5" />
+                    <div>
+                      <span className="font-medium text-orange-800">Địa chỉ giao hàng:</span>
+                      <p className="text-orange-700 mt-1">{selectedOrder.address}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
+                    <Phone className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <span className="font-medium text-blue-800">Số điện thoại:</span>
+                      <p className="text-blue-700 mt-1">{selectedOrder.phone}</p>
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
         </DialogContent>

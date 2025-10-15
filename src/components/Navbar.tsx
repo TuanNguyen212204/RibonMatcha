@@ -55,6 +55,12 @@ export const Navbar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Kiểm tra xem có đang trong quá trình logout không
+    if (sessionStorage.getItem('logout-in-progress')) {
+      console.log('Logout in progress, skipping initial session check');
+      return;
+    }
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       checkAdminStatus(session);
@@ -63,6 +69,12 @@ export const Navbar = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Kiểm tra xem có đang trong quá trình logout không
+      if (sessionStorage.getItem('logout-in-progress')) {
+        console.log('Logout in progress, ignoring auth state change');
+        return;
+      }
+      
       setSession(session);
       checkAdminStatus(session);
     });
@@ -91,29 +103,39 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      // Thử logout với scope local trước (ít gây lỗi hơn)
-      await supabase.auth.signOut({ scope: 'local' });
+      // Set logout flag để tránh auto-login
+      sessionStorage.setItem('logout-in-progress', 'true');
       
-      // Clear local state
+      // Clear local state trước
       setSession(null);
       setIsAdmin(false);
       
       // Clear cart from localStorage
       localStorage.removeItem('cart');
       
-      // Navigate to home page
-      window.location.href = '/';
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // Wait a bit for cleanup
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Clear logout flag
+      sessionStorage.removeItem('logout-in-progress');
+      
+      // Force reload - cần F5 2 lần để logout hoàn toàn
+      window.location.reload();
       
     } catch (error) {
-      console.log("Logout failed, clearing local state anyway:", error);
+      console.log("Logout failed, forcing complete cleanup:", error);
       
-      // Ngay cả khi logout thất bại, vẫn clear local state
+      // Nuclear option - clear everything
       setSession(null);
       setIsAdmin(false);
-      localStorage.removeItem('cart');
+      localStorage.clear();
+      sessionStorage.clear();
       
-      // Force reload để đảm bảo clean state
-      window.location.href = '/';
+      // Force reload
+      window.location.reload();
     }
   };
 

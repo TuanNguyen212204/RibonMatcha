@@ -127,11 +127,18 @@ const Cart = () => {
     setLoading(true);
 
     try {
-      // Create order (guest checkout)
+      // Tạo customer_identifier từ số điện thoại hoặc UUID
+      const customerIdentifier = checkoutData.phone || `anon_${Date.now()}`;
+      
+      // Tạo UUID duy nhất cho guest order này
+      const guestUserId = crypto.randomUUID();
+
+      // Create order với customer_identifier cho guest checkout
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert([{
-          user_id: null, // Guest order
+          customer_identifier: customerIdentifier,
+          user_id: guestUserId, // Sử dụng UUID duy nhất cho guest order này
           total_price: subtotal,
           address: checkoutData.address,
           phone: checkoutData.phone,
@@ -159,7 +166,7 @@ const Cart = () => {
 
       if (itemsError) throw itemsError;
 
-      // Không cần trừ nguyên liệu nữa vì đã xóa quản lý nguyên liệu
+      // Không cần trừ nguyên liệu nữa vì đã bỏ quản lý nguyên liệu
 
       // Clear cart
       localStorage.removeItem("cart");
@@ -174,7 +181,8 @@ const Cart = () => {
         description: "Đơn hàng của bạn đã được đặt thành công!",
       });
 
-      navigate("/"); // Quay về trang chủ thay vì profile
+      // Navigate to tracking page with phone number
+      navigate(`/track-order?phone=${encodeURIComponent(checkoutData.phone)}`);
     } catch (error: unknown) {
       toast({
         title: "Order failed",
@@ -313,7 +321,7 @@ const Cart = () => {
 
       {/* Checkout Dialog */}
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Checkout 💕</DialogTitle>
             <DialogDescription>
@@ -352,6 +360,7 @@ const Cart = () => {
               )}
             </div>
 
+
             <div>
               <Label htmlFor="payment">Phương Thức Thanh Toán *</Label>
               <Select
@@ -381,7 +390,7 @@ const Cart = () => {
                     className="mx-auto mb-3 rounded-lg shadow-md max-w-48 h-48 object-cover"
                   />
                   <div className="text-sm text-blue-600 space-y-1">
-                    <p><strong>Ngân hàng:</strong> BIDV (VCB)</p>
+                    <p><strong>Ngân hàng:</strong> BIDV (BIDV)</p>
                     <p><strong>STK:</strong> 8813722558</p>
                     <p><strong>Chủ TK:</strong> DINH HUYEN TRANG</p>
                     <p><strong>Nội dung:</strong> {checkoutData.phone}</p>
