@@ -9,20 +9,20 @@ const About = () => {
       <div className="flex-1 py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           <h1 className="text-5xl font-display text-primary font-bold mb-8 text-center">
-            Câu Chuyện Của Chúng Tôi 💕
+            Our Story 💕
           </h1>
           <div className="bg-card rounded-3xl shadow-cute p-8 space-y-6">
             <p className="text-lg leading-relaxed">
-              Chào mừng đến với Ribon Matchalatte, nơi mỗi ly matcha đều được làm bằng tình yêu! 🍵✨
+              Welcome to Ribon Matchalatte, where every cup of matcha is made with love! 🍵✨
             </p>
             <p className="leading-relaxed">
-              Chúng tôi tin rằng việc thưởng thức Matcha nên là một trải nghiệm tuyệt vời. Vì vậy chúng tôi chỉ lựa chọn những bột Matcha chất lượng cao nhất từ Nhật Bản và pha chế từng ly với sự chăm sóc và niềm vui.
+              We believe that enjoying matcha should be a delightful experience. That’s why we source only the highest-quality matcha powder from Japan and craft each drink with care and joy.
             </p>
             <div className="flex items-center justify-center py-8">
               <Heart className="h-24 w-24 text-primary animate-bounce-soft" />
             </div>
             <p className="leading-relaxed">
-              Sứ mệnh của chúng tôi rất đơn giản: lan tỏa tình yêu và niềm vui qua từng ngụm! Dù bạn là người yêu thích Matcha hay đang thử lần đầu tiên, chúng tôi luôn ở đây để mang đến cho bạn trải nghiệm tuyệt vời nhất! 💖
+              Our mission is simple: to spread love and joy with every sip! Whether you’re a devoted matcha lover or trying it for the first time, we’re here to create a wonderful experience for you. 💖
             </p>
           </div>
         </div>
