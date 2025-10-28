@@ -9,20 +9,20 @@ const About = () => {
       <div className="flex-1 py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           <h1 className="text-5xl font-display text-primary font-bold mb-8 text-center">
-            Câu Chuyện Của Chúng Tôi 💕
+            私たちのストーリー 💕
           </h1>
           <div className="bg-card rounded-3xl shadow-cute p-8 space-y-6">
             <p className="text-lg leading-relaxed">
-              Chào mừng đến với Ribon Matchalatte, nơi mỗi ly matcha được pha chế bằng tình yêu! 🍵✨
+              Ribon Matchalatte へようこそ。ここでは、すべての抹茶ラテを愛情を込めてお作りしています！🍵✨
             </p>
             <p className="leading-relaxed">
-              Chúng tôi tin rằng thưởng thức Matcha phải là một trải nghiệm tuyệt vời. Vì vậy, chúng tôi chỉ chọn loại bột Matcha chất lượng cao nhất từ Nhật Bản và pha chế từng ly một cách cẩn thận và vui vẻ.
+              私たちは、抹茶を味わうことは素晴らしい体験であるべきだと信じています。そのため、日本から厳選した最高品質の抹茶のみを使用し、一杯一杯ていねいに、そして楽しくお作りしています。
             </p>
             <div className="flex items-center justify-center py-8">
               <Heart className="h-24 w-24 text-primary animate-bounce-soft" />
             </div>
             <p className="leading-relaxed">
-              Sứ mệnh của chúng tôi thật đơn giản: lan tỏa tình yêu và niềm vui qua từng ngụm! Dù bạn là người yêu thích Matcha hay chỉ mới thử lần đầu, chúng tôi luôn ở đây để mang đến cho bạn trải nghiệm tuyệt vời nhất! 💖
+              私たちの使命はシンプルです: 一口ごとに愛と喜びを届けること！抹茶が大好きな方も、はじめての方も、最高の体験をお届けします！💖
             </p>
           </div>
         </div>
