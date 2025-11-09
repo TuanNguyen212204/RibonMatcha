@@ -22,7 +22,7 @@ const NotFound = () => {
           <p className="mb-8 text-xl text-muted-foreground">Oops! Page not found 💔</p>
           <Link to="/">
             <Button variant="kawaii" size="lg">
-              Return to Home
+              Return to Home hehe
             </Button>
           </Link>
         </div>
